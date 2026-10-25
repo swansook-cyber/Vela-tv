@@ -7,6 +7,7 @@ on:
       - develop/vela-tv-launcher
     paths:
       - '.github/workflows/vela-tv-baseline.yml'
+      - 'scripts/apply_vela_branding.py'
 
 permissions:
   contents: read
@@ -44,20 +45,8 @@ jobs:
       - name: Install Android SDK 34
         run: |
           "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
-      - name: Apply Vela TV baseline branding
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('upstream/launcher/app/src/main/res/values/strings.xml')
-          content = path.read_text(encoding='utf-8')
-          old = '<string name="app_name">Home</string>'
-          assert content.count(old) == 1, 'Upstream app_name changed; review branding patch'
-          content = content.replace(old, '<string name="app_name">Vela TV</string>')
-          content = content.replace('CleanYourTV', 'Vela TV')
-          path.write_text(content, encoding='utf-8')
-          PY
+      - name: Apply Vela TV branding overlay
+        run: python3 scripts/apply_vela_branding.py
       - name: Build isolated Vela-package debug APK
         working-directory: upstream/launcher
         run: |
