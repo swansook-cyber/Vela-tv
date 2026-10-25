@@ -36,8 +36,11 @@ jobs:
           set -e
           SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
           test -x "$SDKMANAGER"
-          yes | "$SDKMANAGER" --licenses || status=$?
-          if [ "${status:-0}" -ne 0 ] && [ "${status:-0}" -ne 141 ]; then exit "$status"; fi
+          set +o pipefail
+          yes | "$SDKMANAGER" --licenses
+          sdk_status=${PIPESTATUS[1]}
+          set -o pipefail
+          if [ "$sdk_status" -ne 0 ]; then exit "$sdk_status"; fi
       - name: Install Android SDK 34
         run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
       - name: Build isolated Vela-package debug APK
