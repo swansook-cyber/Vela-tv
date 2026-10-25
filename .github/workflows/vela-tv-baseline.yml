@@ -1,4 +1,4 @@
-name: Vela TV upstream baseline APK
+name: Vela TV Launcher V2 APK
 
 on:
   workflow_dispatch:
@@ -55,7 +55,7 @@ jobs:
       - name: Upload test APK
         uses: actions/upload-artifact@v4
         with:
-          name: vela-tv-upstream-baseline-debug
+          name: vela-tv-launcher-v2-debug
           path: upstream/launcher/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
