@@ -1,0 +1,48 @@
+name: Vela TV upstream baseline APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop/vela-tv-launcher
+    paths:
+      - '.github/workflows/vela-tv-baseline.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout Vela TV branch
+        uses: actions/checkout@v4
+      - name: Checkout pinned CleanYourTV source
+        uses: actions/checkout@v4
+        with:
+          repository: Gathin23/cleanyourtv
+          ref: 0c0f69c3f1a50582bedc5569d4536367611ae9ff
+          path: upstream
+          persist-credentials: false
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android SDK 34
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: Build isolated Vela-package debug APK
+        working-directory: upstream/launcher
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest -PlauncherApplicationId=net.velalab.tvlauncher
+      - name: Upload test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: vela-tv-upstream-baseline-debug
+          path: upstream/launcher/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
