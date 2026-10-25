@@ -15,8 +15,8 @@ source = strings.read_text(encoding="utf-8")
 old = '<string name="app_name">Home</string>'
 if source.count(old) != 1:
     raise SystemExit("Upstream app_name changed: inspect before patching")
-source = source.replace(old, '<string name="app_name">Vela TV</string>')
-source = source.replace("CleanYourTV", "Vela TV")
+source = source.replace(old, '<string name="app_name">Vela TV Launcher</string>')
+source = source.replace("CleanYourTV", "Vela TV Launcher")
 strings.write_text(source, encoding="utf-8")
 
 # Retain upstream HOME, LEANBACK and rollback behavior.
@@ -41,4 +41,4 @@ manifest.write_text(m.replace(old_icon, 'android:icon="@drawable/vela_tv_icon"')
 # Ensure resources and manifest remain well-formed XML.
 for file in (strings, manifest, styles, vector):
     ET.parse(file)
-print("Vela TV name and icon overlay validated")
+print("Vela TV Launcher V2 branding and XML validated")
