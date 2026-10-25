@@ -38,7 +38,20 @@ if m.count(old_icon) != 1:
     raise SystemExit("Upstream manifest icon changed")
 manifest.write_text(m.replace(old_icon, 'android:icon="@drawable/vela_tv_icon"'), encoding="utf-8")
 
+# V2: balanced dock spacing and one visible app row under the dock.
+# Preserve all focus handling, D-pad behavior and app launch logic upstream.
+config = root / "res/values/config.xml"
+cfg = config.read_text(encoding="utf-8")
+for before, after in (
+    ('<bool name="dock_even_padding">false</bool>', '<bool name="dock_even_padding">true</bool>'),
+    ('<integer name="rows_below_dock">0</integer>', '<integer name="rows_below_dock">1</integer>'),
+):
+    if cfg.count(before) != 1:
+        raise SystemExit(f"Upstream layout setting changed: {before}")
+    cfg = cfg.replace(before, after)
+config.write_text(cfg, encoding="utf-8")
+
 # Ensure resources and manifest remain well-formed XML.
-for file in (strings, manifest, styles, vector):
+for file in (strings, manifest, styles, vector, config):
     ET.parse(file)
 print("Vela TV Launcher V2 branding and XML validated")
