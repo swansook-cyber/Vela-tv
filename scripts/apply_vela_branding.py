@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Non-destructive Vela TV branding overlay for pinned CleanYourTV checkout."""
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+root = Path("upstream/launcher/app/src/main")
+strings = root / "res/values/strings.xml"
+manifest = root / "AndroidManifest.xml"
+styles = root / "res/values/styles.xml"
+for file in (strings, manifest, styles):
+    if not file.is_file():
+        raise SystemExit(f"Missing upstream file: {file}")
+
+source = strings.read_text(encoding="utf-8")
+old = '<string name="app_name">Home</string>'
+if source.count(old) != 1:
+    raise SystemExit("Upstream app_name changed: inspect before patching")
+source = source.replace(old, '<string name="app_name">Vela TV</string>')
+source = source.replace("CleanYourTV", "Vela TV")
+strings.write_text(source, encoding="utf-8")
+
+# Retain upstream HOME, LEANBACK and rollback behavior.
+# Only substitute app icon; original banner is retained until TV artwork QA.
+vector = root / "res/drawable/vela_tv_icon.xml"
+vector.write_text("""<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#111827" android:pathData="M0,0h108v108h-108z"/>
+    <path android:fillColor="#F3F4F6" android:pathData="M19,29h70v50h-70z"/>
+    <path android:fillColor="#111827" android:pathData="M24,34h60v40h-60z"/>
+    <path android:fillColor="#EC4899" android:pathData="M30,42l24,26 24,-26 -9,0 -15,17 -15,-17z"/>
+</vector>
+""", encoding="utf-8")
+m = manifest.read_text(encoding="utf-8")
+old_icon = 'android:icon="@mipmap/ic_launcher"'
+if m.count(old_icon) != 1:
+    raise SystemExit("Upstream manifest icon changed")
+manifest.write_text(m.replace(old_icon, 'android:icon="@drawable/vela_tv_icon"'), encoding="utf-8")
+
+# Ensure resources and manifest remain well-formed XML.
+for file in (strings, manifest, styles, vector):
+    ET.parse(file)
+print("Vela TV name and icon overlay validated")
