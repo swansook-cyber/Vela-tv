@@ -54,6 +54,8 @@ for before, after in (
     ('<bool name="dock_even_padding">false</bool>', '<bool name="dock_even_padding">true</bool>'),
     ('<integer name="rows_below_dock">0</integer>', '<integer name="rows_below_dock">1</integer>'),
     ('<bool name="app_library">false</bool>', '<bool name="app_library">true</bool>'),
+    ('<bool name="tile_menu">false</bool>', '<bool name="tile_menu">true</bool>'),
+    ('<bool name="app_library_selection">false</bool>', '<bool name="app_library_selection">true</bool>'),
 ):
     if cfg.count(before) != 1:
         raise SystemExit(f"Upstream layout setting changed: {before}")
