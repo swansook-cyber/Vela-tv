@@ -36,7 +36,26 @@ m = manifest.read_text(encoding="utf-8")
 old_icon = 'android:icon="@mipmap/ic_launcher"'
 if m.count(old_icon) != 1:
     raise SystemExit("Upstream manifest icon changed")
-manifest.write_text(m.replace(old_icon, 'android:icon="@drawable/vela_tv_icon"'), encoding="utf-8")
+m = m.replace(old_icon, 'android:icon="@drawable/vela_tv_icon"')
+old_banner = 'android:banner="@drawable/banner"'
+if m.count(old_banner) != 1:
+    raise SystemExit("Upstream manifest banner changed: inspect before patching")
+m = m.replace(old_banner, 'android:banner="@drawable/vela_tv_banner"')
+manifest.write_text(m, encoding="utf-8")
+
+# A landscape banner for Android TV's Apps list, matching the Vela app icon.
+# Never inherit the unrelated CleanYourTV stock banner in a Vela-labelled APK.
+banner = root / "res/drawable/vela_tv_banner.xml"
+banner.write_text("""<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp"
+    android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#111827" android:pathData="M0,0h320v180h-320z"/>
+    <path android:fillColor="#1F2937" android:pathData="M35,22h250v136h-250z"/>
+    <path android:fillColor="#F3F4F6" android:pathData="M108,52l52,80 52,-80h-20l-32,51 -32,-51z"/>
+    <path android:fillColor="#EC4899" android:pathData="M148,52l12,19 12,-19z"/>
+</vector>
+""", encoding="utf-8")
 
 # Thai Android TV locale overrides the default app name unless explicitly patched.
 thai = root / "res/values-th/strings.xml"
@@ -56,6 +75,9 @@ for before, after in (
     ('<bool name="app_library">false</bool>', '<bool name="app_library">true</bool>'),
     ('<bool name="tile_menu">false</bool>', '<bool name="tile_menu">true</bool>'),
     ('<bool name="app_library_selection">false</bool>', '<bool name="app_library_selection">true</bool>'),
+    # Real package icons, with each installed app's label visible even when unfocused.
+    ('<bool name="uniform_tiles">false</bool>', '<bool name="uniform_tiles">true</bool>'),
+    ('<bool name="always_show_names">false</bool>', '<bool name="always_show_names">true</bool>'),
 ):
     if cfg.count(before) != 1:
         raise SystemExit(f"Upstream layout setting changed: {before}")
@@ -63,6 +85,6 @@ for before, after in (
 config.write_text(cfg, encoding="utf-8")
 
 # Ensure resources and manifest remain well-formed XML.
-for file in (strings, thai, manifest, styles, vector, config):
+for file in (strings, thai, manifest, styles, vector, banner, config):
     ET.parse(file)
 print("Vela TV Launcher V2 branding and XML validated")

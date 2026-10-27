@@ -19,5 +19,9 @@
 ## Non-destructive policy
 No automatic deployment, no ADB package disabling, no TV settings writes, no merge to main, no production changes. Build APK must be tested before claiming readiness.
 
-## Current blocker
-Upstream source archive is not yet imported; repository access in the current execution environment does not permit downloading the upstream Git tree. Do not claim a working APK until the source is actually imported and CI passes.
+## Current verification
+- GitHub Actions builds the pinned upstream launcher from a temporary checkout, applies Vela branding, and uploads a debug APK.
+- V2 Build #12 succeeded; it is not an on-device acceptance test.
+- A Vela-specific TV banner, installed-app labels/icons and APK identity checks are being added on the development branch.
+- Keep using debug APKs until D-pad, long OK, Back, launch/return, performance, and stock HOME rollback all pass on TCL.
+- Current builds do not remove ads inside third-party apps, change DNS, disable any system package, or set Default HOME.

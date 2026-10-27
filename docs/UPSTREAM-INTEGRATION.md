@@ -17,4 +17,4 @@ The native Android app is under `launcher/`, NOT the repository root.
 5. Only after user approves and rollback is tested, offer HOME selection. Never disable/uninstall stock TCL launcher automatically.
 
 ## Acceptance gate
-No APK has been produced or tested yet. Do not describe this branch as release-ready until source import, CI, and on-device tests pass.
+GitHub Actions Build #12 produced a debug APK successfully using the pinned upstream checkout. The updated V2 build still requires CI verification and physical TCL acceptance before any release or Default HOME change. Retain the original system launcher for rollback.

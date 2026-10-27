@@ -52,6 +52,25 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest -PlauncherApplicationId=net.velalab.tvlauncher
+      - name: Verify debug APK identity and TCL-compatible SDK
+        working-directory: upstream/launcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          AAPT="${ANDROID_HOME}/build-tools/34.0.0/aapt"
+          test -x "$AAPT"
+          "$AAPT" dump badging "$APK" > apk-badging.txt
+          grep -Fq "package: name='net.velalab.tvlauncher'" apk-badging.txt
+          grep -Fq "application-label:'Vela TV Launcher'" apk-badging.txt
+          grep -Fq "application-label-th:'Vela TV Launcher'" apk-badging.txt
+          grep -Fq "sdkVersion:'26'" apk-badging.txt
+          test -f app/src/main/res/drawable/vela_tv_banner.xml
+          grep -Fq 'android:banner="@drawable/vela_tv_banner"' app/src/main/AndroidManifest.xml
+          grep -Fq 'android.intent.category.LEANBACK_LAUNCHER' app/src/main/AndroidManifest.xml
+          grep -Fq 'android.intent.category.HOME' app/src/main/AndroidManifest.xml
+
       - name: Upload test APK
         uses: actions/upload-artifact@v4
         with:
