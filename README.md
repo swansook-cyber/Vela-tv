@@ -18,7 +18,7 @@ CleanYourTV copyright (c) 2026 Gathin; upstream is MIT licensed. Preserve upstre
 - Application ID is fixed at `net.velalab.tvlauncher`, minSdk is 26, version name is `3.0.0`, and CI version code is `30000 + run_number`.
 - V3 retains App Library, Home selection, hold-OK tile menu, order persistence, four dock slots, labels, and reduced motion support. Zero rows below the dock now places the next row beyond the viewport; banner artwork is fit without cropping.
 - The launcher has no Internet permission or advertising dependency. Its Home does not contain sponsored rows. This does not remove ads inside other applications.
-- Release is blocked until the verified original Vela TV logo is supplied as `assets/vela-tv-original.png` with its approved SHA-256 in `assets/vela-tv-original.sha256`. The branding script derives square icons and a 16:9 banner from that image and fails on a mismatch. Existing placeholder vectors are not used by the V3 release workflow.
+- Approved original logo, 512px icon, and 320x180 TV banner are committed under `assets/` with fixed SHA-256 values. The branding script uses these images without substituting artwork and produces legacy density icons plus an adaptive icon. The manifest points to the Vela assets, and CI compares embedded APK pixels with the approved images.
 - CI requires the existing VelaLab keystore through `VELA_RELEASE_*` secrets and checks the certificate against `.github/vela-release-cert.sha256`. There is no debug signing fallback for release builds.
 - Physical TCL device specifications, Home layout, focus, Input handling, and in-place upgrade remain unverified until an authorized device and a previous signed Vela TV release are available.
 

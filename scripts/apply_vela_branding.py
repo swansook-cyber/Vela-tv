@@ -1,44 +1,77 @@
 #!/usr/bin/env python3
-"""Build Vela resources only from the approved original artwork."""
-from pathlib import Path
+"""Install only the three approved Vela TV artwork files into Android resources."""
 from hashlib import sha256
+from pathlib import Path
+import shutil
 import xml.etree.ElementTree as ET
 
 from PIL import Image
 
-SOURCE = Path('assets/vela-tv-original.png')
-APPROVED = Path('assets/vela-tv-original.sha256')
-RES = Path('launcher/app/src/main/res')
-MANIFEST = Path('launcher/app/src/main/AndroidManifest.xml')
-if not SOURCE.is_file() or not APPROVED.is_file():
-    raise SystemExit('Original approved Vela TV artwork and SHA-256 are required')
-actual = sha256(SOURCE.read_bytes()).hexdigest()
-if actual != APPROVED.read_text(encoding='utf-8').strip().lower():
-    raise SystemExit('Original Vela TV artwork differs from approved SHA-256')
-image = Image.open(SOURCE).convert('RGBA')
-if image.width < 512 or image.height < 512:
-    raise SystemExit('Original artwork must be at least 512 x 512')
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / 'assets'
+RES = ROOT / 'launcher/app/src/main/res'
+MANIFEST = ROOT / 'launcher/app/src/main/AndroidManifest.xml'
+EXPECTED = {
+    'vela-tv-original.png': '02f03b32d0053239a29ecf3e7ddb2f444c4cda1d3ecf054d6e0f3bb007e614d9',
+    'vela-tv-icon-512.png': '3ebc266e21b5d8288811813f4ede655ed28ea45323d68ea1a7b6c9f81bd3c724',
+    'vela-tv-banner-320x180.png': 'c7e77ea9aaf67bff2bbf105449697d720fe2270e194dde59ef89bda4cc500d50',
+}
+if (ASSETS / 'vela-tv-original.sha256').read_text(encoding='ascii').strip() != EXPECTED['vela-tv-original.png']:
+    raise SystemExit('Approved original logo fingerprint file changed')
+approved_lines = {name: digest for digest, name in (
+    line.split() for line in (ASSETS / 'vela-tv-approved.sha256').read_text(encoding='ascii').splitlines()
+)}
+if approved_lines != EXPECTED:
+    raise SystemExit('Approved Vela artwork manifest changed')
+for name, digest in EXPECTED.items():
+    source = ASSETS / name
+    if not source.is_file() or sha256(source.read_bytes()).hexdigest() != digest:
+        raise SystemExit(f'Approved Vela artwork missing or changed: {name}')
 
-# Fit without cropping. The source pixels retain their proportions on dark Vela canvas.
-def fitted(size):
-    canvas = Image.new('RGBA', size, (17, 24, 39, 255))
-    art = image.copy()
-    art.thumbnail(size, Image.Resampling.LANCZOS)
-    canvas.alpha_composite(art, ((size[0] - art.width) // 2, (size[1] - art.height) // 2))
-    return canvas.convert('RGB')
-
+icon = Image.open(ASSETS / 'vela-tv-icon-512.png').convert('RGB')
+banner = Image.open(ASSETS / 'vela-tv-banner-320x180.png').convert('RGB')
+if icon.size != (512, 512) or banner.size != (320, 180):
+    raise SystemExit('Approved icon or TV banner dimensions changed')
 for density, px in {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}.items():
-    target = RES / ('mipmap-' + density) / 'vela_tv_icon.png'
-    target.parent.mkdir(parents=True, exist_ok=True)
-    fitted((px, px)).save(target)
-banner = RES / 'drawable-nodpi/vela_tv_banner.png'
-banner.parent.mkdir(parents=True, exist_ok=True)
-fitted((640, 360)).save(banner)
+    path = RES / f'mipmap-{density}/vela_tv_icon.png'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    icon.resize((px, px), Image.Resampling.LANCZOS).save(path)
+
+# Exact approved banner bytes are embedded, without recoloring or crop.
+target = RES / 'drawable-nodpi/vela_tv_banner.png'
+target.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(ASSETS / 'vela-tv-banner-320x180.png', target)
+
+# Android's adaptive mask keeps the entire approved logo in its 72/108 safe zone.
+foreground = Image.new('RGBA', (648, 648), (0, 0, 0, 0))
+foreground.alpha_composite(icon.resize((432, 432), Image.Resampling.LANCZOS).convert('RGBA'), (108, 108))
+foreground_path = RES / 'drawable-nodpi/vela_tv_adaptive_foreground.png'
+foreground.save(foreground_path)
+xml = RES / 'mipmap-anydpi-v26/vela_tv_icon.xml'
+xml.parent.mkdir(parents=True, exist_ok=True)
+xml.write_text('''<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/vela_tv_icon_background" />
+    <foreground android:drawable="@drawable/vela_tv_adaptive_foreground" />
+</adaptive-icon>
+''', encoding='utf-8')
+colors = RES / 'values/vela_brand_colors.xml'
+colors.write_text('''<?xml version="1.0" encoding="utf-8"?>
+<resources><color name="vela_tv_icon_background">#05040B</color></resources>
+''', encoding='utf-8')
+
 manifest = MANIFEST.read_text(encoding='utf-8')
-manifest = manifest.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@mipmap/vela_tv_icon"')
-manifest = manifest.replace('android:banner="@drawable/banner"', 'android:banner="@drawable/vela_tv_banner"')
-if manifest.count('android:icon="@mipmap/vela_tv_icon"') != 1 or manifest.count('android:banner="@drawable/vela_tv_banner"') != 1:
-    raise SystemExit('Manifest branding references changed; inspect before building')
+for old, new in (
+    ('android:icon="@mipmap/ic_launcher"', 'android:icon="@mipmap/vela_tv_icon"'),
+    ('android:banner="@drawable/banner"', 'android:banner="@drawable/vela_tv_banner"'),
+):
+    if old in manifest:
+        if manifest.count(old) != 1:
+            raise SystemExit(f'Unexpected duplicate manifest reference: {old}')
+        manifest = manifest.replace(old, new)
+    elif manifest.count(new) != 1:
+        raise SystemExit(f'Manifest branding reference changed: {new}')
 MANIFEST.write_text(manifest, encoding='utf-8')
-ET.parse(MANIFEST)
-print('Approved Vela artwork verified and rendered: ' + actual)
+for path in (MANIFEST, xml, colors):
+    ET.parse(path)
+print('Approved Vela original, icon, TV banner and adaptive icon verified')

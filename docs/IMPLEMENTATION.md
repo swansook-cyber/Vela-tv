@@ -21,7 +21,7 @@ No automatic deployment, no ADB package disabling, no TV settings writes, no mer
 
 ## Current verification
 - The pinned launcher source is imported into this repository; unit tests and a local debug build pass.
-- The original Vela artwork is still required. Until it is supplied and its digest approved, release CI must fail rather than package substitute artwork.
+- The original Vela artwork was supplied and its original, square icon, and TV banner SHA-256 values are pinned in `assets/`. Resource verification compares the embedded APK artwork against those assets.
 - The release certificate baseline is `965f96aeca629a3ea78f439d4fd5fe3bbee53844ff8f445b7fc068b9d85f2dbe`, observed in existing VelaLab APKs. A Vela TV signed release has not yet been established.
 - Physical TCL D-pad, long OK, Back, launch/return, performance, actual ABI, and stock HOME rollback still require device QA. No device or default HOME is changed by the build.
 - Builds do not remove ads inside third-party apps, change DNS, disable any system package, or set Default HOME.

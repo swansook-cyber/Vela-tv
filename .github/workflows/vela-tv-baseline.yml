@@ -30,6 +30,8 @@ jobs:
           set -euo pipefail
           APK=launcher/app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/34.0.0/aapt" dump badging "$APK" | grep -F "package: name='net.velalab.tvlauncher'"
+          python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+          python3 scripts/verify_apk_branding.py "$APK"
           ! grep -Eq 'android.permission.INTERNET|com.google.android.gms.ads|com.facebook.ads|applovin|admob' launcher/app/src/main/AndroidManifest.xml launcher/app/build.gradle
           grep -Fq 'android.intent.category.LEANBACK_LAUNCHER' launcher/app/src/main/AndroidManifest.xml
           grep -Fq 'android.intent.category.HOME' launcher/app/src/main/AndroidManifest.xml
@@ -55,6 +57,8 @@ jobs:
           set -euo pipefail
           test -s assets/vela-tv-original.png || { echo '::error::Original Vela logo missing'; exit 1; }
           test -s assets/vela-tv-original.sha256 || { echo '::error::Approved logo fingerprint missing'; exit 1; }
+          test -s assets/vela-tv-icon-512.png || { echo '::error::Approved Vela icon missing'; exit 1; }
+          test -s assets/vela-tv-banner-320x180.png || { echo '::error::Approved Vela banner missing'; exit 1; }
           for key in VELA_RELEASE_KEYSTORE_BASE64 VELA_RELEASE_STORE_PASSWORD VELA_RELEASE_KEY_PASSWORD VELA_RELEASE_KEY_ALIAS; do
             test -n "${!key}" || { echo "::error::Missing release signing secret: $key"; exit 1; }
           done
@@ -62,6 +66,7 @@ jobs:
         run: |
           python3 -m pip install --disable-pip-version-check Pillow==11.3.0
           python3 scripts/apply_vela_branding.py
+          git diff --exit-code -- launcher/app/src/main
       - name: Decode existing keystore
         shell: bash
         run: |
@@ -93,9 +98,8 @@ jobs:
           grep -Fq "versionName='3.0.0'" "$RUNNER_TEMP/badging.txt"
           grep -Fq "application-label:'Vela TV Launcher'" "$RUNNER_TEMP/badging.txt"
           grep -Fq "application-label-th:'Vela TV Launcher'" "$RUNNER_TEMP/badging.txt"
-          grep -Fq "application-icon-160:'res/mipmap-mdpi-v4/vela_tv_icon.png'" "$RUNNER_TEMP/badging.txt"
-          unzip -l "$APK" | grep -Fq 'res/drawable-nodpi-v4/vela_tv_banner.png'
-          unzip -l "$APK" | grep -Fq 'res/mipmap-mdpi-v4/vela_tv_icon.png'
+          grep -Fq "application-icon-160:'res/mipmap-anydpi-v26/vela_tv_icon.xml'" "$RUNNER_TEMP/badging.txt"
+          python3 scripts/verify_apk_branding.py "$APK"
           "$SIGNER" verify --verbose --print-certs "$APK" > "$RUNNER_TEMP/signature.txt"
           grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$RUNNER_TEMP/signature.txt"
           EXPECTED="$(tr -d '\r\n ' < .github/vela-release-cert.sha256)"
