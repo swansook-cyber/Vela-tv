@@ -75,8 +75,9 @@ for before, after in (
     ('<bool name="app_library">false</bool>', '<bool name="app_library">true</bool>'),
     ('<bool name="tile_menu">false</bool>', '<bool name="tile_menu">true</bool>'),
     ('<bool name="app_library_selection">false</bool>', '<bool name="app_library_selection">true</bool>'),
-    # Real package icons, with each installed app's label visible even when unfocused.
-    ('<bool name="uniform_tiles">false</bool>', '<bool name="uniform_tiles">true</bool>'),
+    # Preserve the app's full landscape banner (Netflix, Prime Video, YouTube).
+    # uniform_tiles=true discards banner artwork and reduces the mark to 62% of tile height.
+    # Keep independent always-visible names without shrinking the artwork.
     ('<bool name="always_show_names">false</bool>', '<bool name="always_show_names">true</bool>'),
 ):
     if cfg.count(before) != 1:
