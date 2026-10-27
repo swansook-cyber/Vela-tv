@@ -80,21 +80,21 @@ jobs:
           retention-days: 14
 
   release:
-    name: Signed release APK (permanent Vela key)
+    name: Signed release APK (existing VelaLab key)
     if: ${{ vars.VELA_TV_RELEASE_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      VELA_TV_KEYSTORE_BASE64: ${{ secrets.VELA_TV_KEYSTORE_BASE64 }}
-      VELA_TV_KEYSTORE_PASSWORD: ${{ secrets.VELA_TV_KEYSTORE_PASSWORD }}
-      VELA_TV_KEY_PASSWORD: ${{ secrets.VELA_TV_KEY_PASSWORD }}
-      VELA_TV_KEY_ALIAS: ${{ secrets.VELA_TV_KEY_ALIAS }}
+      VELA_RELEASE_KEYSTORE_BASE64: ${{ secrets.VELA_RELEASE_KEYSTORE_BASE64 }}
+      VELA_RELEASE_STORE_PASSWORD: ${{ secrets.VELA_RELEASE_STORE_PASSWORD }}
+      VELA_RELEASE_KEY_PASSWORD: ${{ secrets.VELA_RELEASE_KEY_PASSWORD }}
+      VELA_RELEASE_KEY_ALIAS: ${{ secrets.VELA_RELEASE_KEY_ALIAS }}
     steps:
       - name: Require permanent release signing secrets
         shell: bash
         run: |
           set -euo pipefail
-          for key in VELA_TV_KEYSTORE_BASE64 VELA_TV_KEYSTORE_PASSWORD VELA_TV_KEY_PASSWORD VELA_TV_KEY_ALIAS; do
+          for key in VELA_RELEASE_KEYSTORE_BASE64 VELA_RELEASE_STORE_PASSWORD VELA_RELEASE_KEY_PASSWORD VELA_RELEASE_KEY_ALIAS; do
             if [ -z "${!key}" ]; then
               echo "::error::Missing release signing secret: $key"
               exit 1
@@ -146,9 +146,9 @@ jobs:
           signing = """    signingConfigs {
               velaRelease {
                   storeFile file(System.getenv('VELA_RELEASE_KEYSTORE_FILE'))
-                  storePassword System.getenv('VELA_TV_KEYSTORE_PASSWORD')
-                  keyAlias System.getenv('VELA_TV_KEY_ALIAS')
-                  keyPassword System.getenv('VELA_TV_KEY_PASSWORD')
+                  storePassword System.getenv('VELA_RELEASE_STORE_PASSWORD')
+                  keyAlias System.getenv('VELA_RELEASE_KEY_ALIAS')
+                  keyPassword System.getenv('VELA_RELEASE_KEY_PASSWORD')
               }
           }
 
@@ -164,7 +164,7 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/vela-signing"
           chmod 700 "$RUNNER_TEMP/vela-signing"
-          printf '%s' "$VELA_TV_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/vela-signing/vela-tv-release.jks"
+          printf '%s' "$VELA_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/vela-signing/vela-tv-release.jks"
           chmod 600 "$RUNNER_TEMP/vela-signing/vela-tv-release.jks"
           test -s "$RUNNER_TEMP/vela-signing/vela-tv-release.jks"
           echo "VELA_RELEASE_KEYSTORE_FILE=$RUNNER_TEMP/vela-signing/vela-tv-release.jks" >> "$GITHUB_ENV"
@@ -192,6 +192,19 @@ jobs:
           grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' "$RUNNER_TEMP/release-signature.txt"
           grep -E 'Signer #1 certificate SHA-256 digest:' "$RUNNER_TEMP/release-signature.txt"
           sha256sum "$APK"
+      - name: Require established VelaLab certificate
+        working-directory: upstream/launcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          EXPECTED="965f96aeca629a3ea78f439d4fd5fe3bbee53844ff8f445b7fc068b9d85f2dbe"
+          ACTUAL="$("$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p' | head -n 1)"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::Release signer does not match the established VelaLab signing certificate"
+            exit 1
+          fi
+
       - name: Publish signed release test artifact
         uses: actions/upload-artifact@v4
         with:
