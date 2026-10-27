@@ -65,7 +65,7 @@ jobs:
       - name: Prepare verified original branding
         run: |
           python3 -m pip install --disable-pip-version-check Pillow==11.3.0
-          python3 scripts/apply_vela_branding.py
+          python3 scripts/apply_vela_branding.py --verify-only
           git diff --exit-code -- launcher/app/src/main
       - name: Decode permanent Vela TV keystore
         shell: bash
