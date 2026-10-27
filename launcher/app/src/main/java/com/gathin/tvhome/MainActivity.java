@@ -536,10 +536,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // rows_below_dock leaves visible ends there; nudging it up was the bug). A row that has to scroll
                 // in still stops at the padding line, clear of the screen edge, as before.
                 int limitBottom = getHeight() - getPaddingBottom();
-                int dy;
-                if (top < 0) dy = top;
-                else if (bottom <= getHeight()) dy = 0;
-                else dy = Math.min(top, bottom - limitBottom);
+                boolean replacingDock = dockRow && getPosition(child) >= COLUMNS
+                        && getPosition(child) < COLUMNS * 2;
+                int dy = HomeViewport.scrollDyForChild(top, bottom, getHeight(), limitBottom,
+                        replacingDock);
                 if (dy == 0) return false;
                 if (immediate || reducedMotion || !animations) parent.scrollBy(0, dy);
                 else parent.smoothScrollBy(0, dy);

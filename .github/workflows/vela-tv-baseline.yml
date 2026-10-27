@@ -78,6 +78,17 @@ jobs:
           test -s "$RUNNER_TEMP/vela-signing/vela-release.jks"
           echo "VELA_RELEASE_KEYSTORE_FILE=$RUNNER_TEMP/vela-signing/vela-release.jks" >> "$GITHUB_ENV"
           echo "VELA_RELEASE_VERSION_CODE=$((30000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+      - name: Verify keystore alias and established certificate before build
+        shell: bash
+        run: |
+          set -euo pipefail
+          keytool -list -v -keystore "$VELA_RELEASE_KEYSTORE_FILE" \
+            -storepass:env VELA_RELEASE_STORE_PASSWORD \
+            -alias "$VELA_RELEASE_KEY_ALIAS" > "$RUNNER_TEMP/vela-signing/certificate.txt"
+          EXPECTED="$(tr -d '\r\n ' < .github/vela-release-cert.sha256)"
+          ACTUAL="$(sed -n 's/^[[:space:]]*SHA256: //p' "$RUNNER_TEMP/vela-signing/certificate.txt" | head -n 1 | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          test "$ACTUAL" = "$EXPECTED" || { echo '::error::Keystore certificate is not the established VelaLab identity'; exit 1; }
+          echo 'Existing VelaLab signing certificate verified'
       - name: Build signed release
         working-directory: launcher
         shell: bash

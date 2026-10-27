@@ -11,4 +11,14 @@ final class HomeViewport {
         int bottomRoom = rowsBelowDock == 0 ? 0 : Math.round(AppAdapter.BOTTOM_ROOM_DP * density);
         return Math.max(shelfClearance, height - dockRowHeight - visibleRowsHeight - bottomRoom);
     }
+
+    static int scrollDyForChild(int top, int bottom, int viewportHeight, int paddedBottom,
+                                boolean snapGridRow) {
+        if (top < 0) return top;
+        if (snapGridRow && top > 0) return top;
+        if (bottom <= viewportHeight) return 0;
+        // A focused row entering from below should replace the dock in one motion. A minimal
+        // scroll leaves the old dock as a clipped strip at the top of short TV viewports.
+        return Math.min(top, bottom - paddedBottom);
+    }
 }

@@ -23,4 +23,10 @@ public class HomeViewportTest {
     @Test public void heroClearanceCanMoveTheDockDown() {
         assertTrue(HomeViewport.dockTopPadding(480, 400, 0, 0, 100, 1f) >= 100);
     }
+
+    @Test public void enteringGridRowReplacesDockInsteadOfClippingIt() {
+        assertEquals(510, HomeViewport.scrollDyForChild(510, 670, 620, 580, true));
+        assertEquals(90, HomeViewport.scrollDyForChild(510, 670, 620, 580, false));
+        assertEquals(220, HomeViewport.scrollDyForChild(220, 390, 486, 446, true));
+    }
 }
