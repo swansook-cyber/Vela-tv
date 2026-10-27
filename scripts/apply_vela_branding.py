@@ -65,13 +65,14 @@ if thai_text.count(thai_name) != 1:
     raise SystemExit("Thai launcher label changed upstream; inspect before patching")
 thai.write_text(thai_text.replace(thai_name, '<string name="app_name">Vela TV Launcher</string>'), encoding="utf-8")
 
-# V2: balanced dock spacing and one visible app row under the dock.
+# V2: balanced dock spacing; avoid partially visible grid rows on short TCL displays.
 # Preserve all focus handling, D-pad behavior and app launch logic upstream.
 config = root / "res/values/config.xml"
 cfg = config.read_text(encoding="utf-8")
 for before, after in (
     ('<bool name="dock_even_padding">false</bool>', '<bool name="dock_even_padding">true</bool>'),
-    ('<integer name="rows_below_dock">0</integer>', '<integer name="rows_below_dock">1</integer>'),
+    # Prefer fully visible dock and scrollable app grid; no cropped lower row.
+    # rows_below_dock=0 is the upstream default and needs no replacement.
     ('<bool name="app_library">false</bool>', '<bool name="app_library">true</bool>'),
     ('<bool name="tile_menu">false</bool>', '<bool name="tile_menu">true</bool>'),
     ('<bool name="app_library_selection">false</bool>', '<bool name="app_library_selection">true</bool>'),
