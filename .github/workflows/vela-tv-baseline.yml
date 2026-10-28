@@ -1,9 +1,9 @@
-name: Vela TV Launcher V3.1
+name: Vela TV Launcher V4
 
 on:
   workflow_dispatch:
   push:
-    branches: [develop/vela-tv-launcher, feature/vela-tv-v3.1-default-home]
+    branches: [develop/vela-tv-launcher, feature/vela-tv-v3.1-default-home, feature/vela-tv-v4-apple-home-themes]
     paths: ['.github/workflows/vela-tv-baseline.yml', '.github/vela-release-cert.sha256', 'launcher/**', 'scripts/**', 'assets/**']
 
 permissions:
@@ -79,7 +79,7 @@ jobs:
           chmod 600 "$RUNNER_TEMP/vela-signing/vela-release.jks"
           test -s "$RUNNER_TEMP/vela-signing/vela-release.jks"
           echo "VELA_RELEASE_KEYSTORE_FILE=$RUNNER_TEMP/vela-signing/vela-release.jks" >> "$GITHUB_ENV"
-          echo "VELA_RELEASE_VERSION_CODE=$((31000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+          echo "VELA_RELEASE_VERSION_CODE=$((40000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
       - name: Verify permanent Vela TV signing identity before build
         shell: bash
         run: |
@@ -109,7 +109,7 @@ jobs:
           "$AAPT" dump badging "$APK" > "$RUNNER_TEMP/badging.txt"
           grep -Fq "package: name='net.velalab.tvlauncher'" "$RUNNER_TEMP/badging.txt"
           grep -Fq "versionCode='$VELA_RELEASE_VERSION_CODE'" "$RUNNER_TEMP/badging.txt"
-          grep -Fq "versionName='3.1.0'" "$RUNNER_TEMP/badging.txt"
+          grep -Fq "versionName='4.0.0'" "$RUNNER_TEMP/badging.txt"
           grep -Fq "application-label:'Vela TV Launcher'" "$RUNNER_TEMP/badging.txt"
           grep -Fq "application-label-th:'Vela TV Launcher'" "$RUNNER_TEMP/badging.txt"
           python3 scripts/verify_apk_branding.py "$APK" --aapt "$AAPT"
@@ -119,11 +119,11 @@ jobs:
           ACTUAL="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$RUNNER_TEMP/signature.txt" | head -n 1)"
           test "$ACTUAL" = "$EXPECTED" || { echo '::error::Unexpected release signing certificate'; exit 1; }
           sha256sum "$APK"
-          cp "$APK" Vela-TV-Launcher-V3.1-Release.apk
+          cp "$APK" Vela-TV-Launcher-V4-Release.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Vela-TV-Launcher-V3.1-Release
-          path: Vela-TV-Launcher-V3.1-Release.apk
+          name: Vela-TV-Launcher-V4-Release
+          path: Vela-TV-Launcher-V4-Release.apk
           if-no-files-found: error
           retention-days: 90
       - name: Remove temporary keystore

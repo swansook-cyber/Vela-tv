@@ -94,6 +94,12 @@
             android:layout_marginTop="28dp" />
 
         <TextView
+            android:id="@+id/v4WallpaperChoice"
+            style="@style/SettingsRow"
+            android:layout_marginTop="10dp"
+            android:text="@string/v4_wallpaper_title" />
+
+        <TextView
             android:id="@+id/animationsChoice"
             style="@style/SettingsRow"
             android:layout_marginTop="28dp" />

@@ -593,6 +593,18 @@ final class Config {
             wallpaper = chosen.isEmpty() ? null : chosen.get(0);
             wallpaperEnabled = !chosen.isEmpty();
         }
+        // V4 choices live in app-private storage and survive a theme directory change.
+        // An unreadable file falls back to the existing theme rather than hiding Home.
+        if (V4Wallpapers.isChoice(wallpaperChoice)) {
+            File selected = V4Wallpapers.file(ctx, wallpaperChoice);
+            if (selected != null && selected.isFile() && selected.length() > 0) {
+                wallpapers.clear();
+                wallpapers.add(selected);
+                wallpaper = selected;
+                wallpaperEnabled = true;
+                rotationMinutes = 0;
+            }
+        }
         // A festive skin comes only from a theme; config.xml has no festival.
         Festival festival = json == null ? Festival.NONE : Festival.parse(string(json, "festival", ""),
                 string(json, "festival_until", ""), string(json, "greeting", ""), string(json, "accent_color", ""));
@@ -648,13 +660,17 @@ final class Config {
             // explicit theme push or reset by the updated tools.
             SharedPreferences.Editor editor = choices.edit();
             if (!"absent".equals(token)) editor.remove("columns").remove("animations")
-                    .remove("advanced_effects").remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY)
+                    .remove("advanced_effects").remove(ROWS_BELOW_DOCK_KEY)
                     .remove(DOCK_OPACITY_KEY);
+            if (!V4Wallpapers.isChoice(choices.getString(WALLPAPER_CHOICE_KEY, null)))
+                editor.remove(WALLPAPER_CHOICE_KEY);
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         } else if (!seen.equals(signature)) {
-            choices.edit().remove("columns").remove("animations").remove("advanced_effects")
-                    .remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY).remove(DOCK_OPACITY_KEY)
-                    .putString(THEME_SIGNATURE_KEY, signature).commit();
+            SharedPreferences.Editor editor = choices.edit().remove("columns").remove("animations")
+                    .remove("advanced_effects").remove(ROWS_BELOW_DOCK_KEY).remove(DOCK_OPACITY_KEY);
+            if (!V4Wallpapers.isChoice(choices.getString(WALLPAPER_CHOICE_KEY, null)))
+                editor.remove(WALLPAPER_CHOICE_KEY);
+            editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         }
     }
 

@@ -25,6 +25,20 @@
     <string name="dream_name">นาฬิกา</string>
 
     <string name="launcher_settings">การตั้งค่าหน้าหลัก</string>
+    <string name="v4_wallpaper_title">ภาพพื้นหลัง V4 และภาพตัวอย่าง</string>
+    <string name="v4_wallpaper_aurora">แสงเหนือสีฟ้า</string>
+    <string name="v4_wallpaper_dusk">แสงเย็นโทนอุ่น</string>
+    <string name="v4_wallpaper_midnight">สีน้ำเงินยามค่ำคืน</string>
+    <string name="v4_wallpaper_import">เลือกภาพ JPG หรือ PNG จากทีวี</string>
+    <string name="v4_wallpaper_imported">ภาพจากทีวีของฉัน</string>
+    <string name="v4_wallpaper_apply">ใช้ภาพตัวอย่าง</string>
+    <string name="v4_wallpaper_reset">คืนค่าภาพพื้นหลังของธีม</string>
+    <string name="v4_wallpaper_preview">ภาพตัวอย่าง — กดใช้ภาพเพื่อเปลี่ยนหน้าหลัก</string>
+    <string name="v4_wallpaper_applied">ใช้ภาพพื้นหลังแล้ว</string>
+    <string name="v4_wallpaper_invalid">ใช้ภาพนี้ไม่ได้ (JPG/PNG ไม่เกิน 8192 พิกเซลและ 16 MB)</string>
+    <string name="v4_wallpaper_unavailable">ทีวีไม่มีแอปสำหรับเลือกภาพ</string>
+    <string name="v4_wallpaper_theme_default">ภาพพื้นหลังของธีม</string>
+    <string name="v4_wallpaper_reset_done">คืนค่าภาพพื้นหลังของธีมแล้ว</string>
     <string name="vela_set_home">ตั้ง Vela TV เป็นหน้าแรกของทีวี</string>
     <string name="vela_open_home_settings">เปิดการตั้งค่าหน้าแรกของระบบ</string>
     <string name="vela_home_set">ตั้งเป็นหน้าแรกแล้ว</string>

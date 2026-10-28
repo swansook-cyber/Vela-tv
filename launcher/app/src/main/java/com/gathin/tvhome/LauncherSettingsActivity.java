@@ -103,6 +103,8 @@ public final class LauncherSettingsActivity extends Activity {
         }
         wallpaperChoice = findViewById(R.id.wallpaperChoice);
         wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
+        findViewById(R.id.v4WallpaperChoice).setOnClickListener(v ->
+                startActivity(new Intent(this, WallpaperSettingsActivity.class)));
         animationsChoice = findViewById(R.id.animationsChoice);
         animationsChoice.setOnClickListener(v -> {
             animations = !animations;
@@ -165,6 +167,7 @@ public final class LauncherSettingsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (defaultHomeStatus != null) refreshHomeStatus();
+        if (wallpaperChoice != null) refresh();
     }
 
     private void refreshHomeStatus() {
@@ -310,6 +313,10 @@ public final class LauncherSettingsActivity extends Activity {
         String wallpaperCurrent = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
         wallpaperChoice.setText(getString(R.string.wallpaper_state,
                 "none".equals(wallpaperCurrent) ? getString(R.string.wallpaper_none)
+                        : V4Wallpapers.AURORA.equals(wallpaperCurrent) ? getString(R.string.v4_wallpaper_aurora)
+                        : V4Wallpapers.DUSK.equals(wallpaperCurrent) ? getString(R.string.v4_wallpaper_dusk)
+                        : V4Wallpapers.MIDNIGHT.equals(wallpaperCurrent) ? getString(R.string.v4_wallpaper_midnight)
+                        : V4Wallpapers.IMPORTED.equals(wallpaperCurrent) ? getString(R.string.v4_wallpaper_imported)
                         : wallpaperCurrent != null ? wallpaperCurrent
                         : getString(R.string.wallpaper_theme_default)));
         openOnStartChoice.setText(getString(R.string.open_on_start_state, openOnStartLabel()));
