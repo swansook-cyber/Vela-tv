@@ -27,22 +27,28 @@ existing Animations switch disables movement, including card zoom.
   and 2 rows below the dock remained selected. The release APK also applied
   Aurora through D-pad/OK and showed the saved choice on return to settings.
 
-## Physical TCL acceptance before delivery
+## Physical TCL acceptance — PASS 9/9
 
-1. Upgrade the signed V3.1 build to signed V4 with `adb install -r` or TV's
-   normal package installer; do not uninstall. Check app order, hidden apps,
-   dock, launcher settings and saved wallpaper choices.
-2. Navigate all Home cards, settings rows and V4 preview/apply/reset with the
-   TCL remote, including Back from the system image picker.
-3. Import both a JPG and PNG from a USB drive or TV storage. Check Preview
-   leaves the active Home unchanged, Apply updates it and Reset restores the
-   prior theme wallpaper. Check behavior when the TV has no file picker.
-4. Turn Animations off and confirm navigation remains responsive and focus
-   remains visible. Turn it back on and check card movement.
-5. Check Home, cold boot and the V3.1 Default Home status on the specified TCL
-   firmware. The emulator's HOME role does not guarantee vendor Home routing.
-6. Navigate for 30 minutes and inspect memory/temperature responsiveness and
-   any redraws after launching/returning from several apps.
+The owner reported these results on 2026-10-28 for TCL Android TV 11,
+platform `TCL-AP-MT9221-01`, firmware `V8-T221T05-LF1V202.000657`.
+They are owner-reported physical observations; no device log or recording was
+provided for independent inspection. The tested build is V4.0.0,
+`versionCode 40031`, from GitHub Actions #31 at source commit
+`ea731170d8fc7034f5a1a31fdbcc388e0a67db39`.
 
-No TCL Default Home change, stock app disable or App Store deploy is part of
-this QA.
+| # | Physical check | Result |
+|---|---|---|
+| 1 | Installed over V3.1 | PASS |
+| 2 | Home UI and focus | PASS |
+| 3 | TCL remote D-pad, OK and Back | PASS |
+| 4 | Built-in themes and Reset | PASS |
+| 5 | JPG and PNG import | PASS |
+| 6 | Show/hide apps and saved settings retained | PASS |
+| 7 | Home from another app returns to Vela TV | PASS |
+| 8 | Reboot returns to Vela TV | PASS |
+| 9 | Continuous 30-minute use | PASS |
+
+The signed APK SHA-256 is
+`4ee2246beef9191e3288f991e4746ca4ca3a16766aaeb9c918f11f6737ca96a2`.
+This acceptance records the tested firmware only. No stock app was disabled,
+and no Vela App Store deployment or main-branch merge was performed.

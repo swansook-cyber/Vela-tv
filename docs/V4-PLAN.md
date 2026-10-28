@@ -1,6 +1,6 @@
 # Vela TV Launcher V4 — Apple-style Home & Themes
 
-Status: V4 implementation and signed CI APK complete; physical TCL QA pending.
+Status: V4 implementation and signed CI APK complete; user-reported TCL physical acceptance PASS 9/9 on 2026-10-28. See V4-QA.md.
 Base: V3.1 commit f48fde2bb4fd72116efd8ddc44e4a55659c87c0d
 Target: TCL Android TV 11, 1080p; D-pad/OK/Back first.
 
