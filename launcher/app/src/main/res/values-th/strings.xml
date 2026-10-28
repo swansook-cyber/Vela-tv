@@ -25,6 +25,11 @@
     <string name="dream_name">นาฬิกา</string>
 
     <string name="launcher_settings">การตั้งค่าหน้าหลัก</string>
+    <string name="vela_set_home">ตั้ง Vela TV เป็นหน้าแรกของทีวี</string>
+    <string name="vela_open_home_settings">เปิดการตั้งค่าหน้าแรกของระบบ</string>
+    <string name="vela_home_set">ตั้งเป็นหน้าแรกแล้ว</string>
+    <string name="vela_home_not_set">ยังไม่ได้ตั้ง</string>
+    <string name="vela_home_blocked">ระบบทีวีไม่อนุญาตให้เปลี่ยน</string>
     <string name="native_settings">การตั้งค่าของผู้ผลิต</string>
     <string name="columns_label">แอปต่อแถว</string>
     <string name="dock_opacity_label">ความทึบของแถบด็อก</string>

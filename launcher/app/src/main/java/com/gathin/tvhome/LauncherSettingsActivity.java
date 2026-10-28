@@ -32,6 +32,8 @@ public final class LauncherSettingsActivity extends Activity {
     private TextView advancedChoice;
     private TextView followThemeChoice;
     private TextView openOnStartChoice;
+    private TextView defaultHomeStatus;
+    private boolean homeLaunchFailed;
     private int columns;
     private int rowsBelowDock;
     private int dockOpacity;
@@ -143,15 +145,35 @@ public final class LauncherSettingsActivity extends Activity {
             changed();
             refresh();
         });
+        defaultHomeStatus = findViewById(R.id.defaultHomeStatus);
         findViewById(R.id.defaultHomeChoice).setOnClickListener(v -> {
-            Toast.makeText(this, R.string.home_settings_help, Toast.LENGTH_LONG).show();
-            open(new Intent(Settings.ACTION_HOME_SETTINGS));
+            homeLaunchFailed = !HomeSetup.request(this);
+            refreshHomeStatus();
+        });
+        findViewById(R.id.openHomeSettingsChoice).setOnClickListener(v -> {
+            homeLaunchFailed = !HomeSetup.openSystemSettings(this);
+            refreshHomeStatus();
         });
         findViewById(R.id.tvSettingsChoice).setOnClickListener(v ->
                 open(SystemSettings.intent(this, Settings.ACTION_SETTINGS)));
         refresh();
         if (config.launcherSettingsButton) reorderChoice.requestFocus();
         else columnChoices[Math.max(0, Math.min(columns - 4, 3))].requestFocus();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (defaultHomeStatus != null) refreshHomeStatus();
+    }
+
+    private void refreshHomeStatus() {
+        HomeSetup.Status status = HomeSetup.status(this);
+        if (status == HomeSetup.Status.SET) homeLaunchFailed = false;
+        int text = status == HomeSetup.Status.SET ? R.string.vela_home_set
+                : status == HomeSetup.Status.BLOCKED || homeLaunchFailed ? R.string.vela_home_blocked
+                : R.string.vela_home_not_set;
+        defaultHomeStatus.setText(text);
     }
 
     private void reverseRow(TextView[] views) {

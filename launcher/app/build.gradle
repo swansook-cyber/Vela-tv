@@ -11,8 +11,8 @@ android {
         applicationId 'net.velalab.tvlauncher'
         minSdk 26
         targetSdk 34
-        versionCode providers.gradleProperty('velaVersionCode').map { it.toInteger() }.getOrElse(30000)
-        versionName '3.0.0'
+        versionCode providers.gradleProperty('velaVersionCode').map { it.toInteger() }.getOrElse(31000)
+        versionName '3.1.0'
     }
 
     signingConfigs {

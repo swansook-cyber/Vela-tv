@@ -135,15 +135,23 @@
             android:id="@+id/defaultHomeChoice"
             style="@style/SettingsRow"
             android:layout_marginTop="28dp"
-            android:text="@string/home_settings" />
+            android:text="@string/vela_set_home" />
 
         <TextView
+            android:id="@+id/defaultHomeStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
-            android:text="@string/home_settings_help"
+            android:accessibilityLiveRegion="polite"
+            android:text="@string/vela_home_not_set"
             android:textColor="#FFACB8C1"
             android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/openHomeSettingsChoice"
+            style="@style/SettingsRow"
+            android:layout_marginTop="18dp"
+            android:text="@string/vela_open_home_settings" />
 
         <TextView
             android:id="@+id/tvSettingsChoice"
