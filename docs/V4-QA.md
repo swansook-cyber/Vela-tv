@@ -19,6 +19,13 @@ existing Animations switch disables movement, including card zoom.
 - Imported images must be JPG/PNG, at most 16 MB and 8192 px per side. A failed
   copy leaves the previously applied image intact. Home decodes wallpaper on a
   worker and scales it to the display, using RGB_565 by default.
+- A PNG selected from the same picker was also copied and applied. Reset removed
+  the wallpaper choice and restored “Theme default”; the existing Animations
+  row turned motion off via D-pad and persisted that choice.
+- Signed CI APK upgraded V3.1 `31029` to V4 `40030` with `adb install -r`.
+  `firstInstallTime` stayed `2026-10-27 22:56:33`, and the saved 7 apps per row
+  and 2 rows below the dock remained selected. The release APK also applied
+  Aurora through D-pad/OK and showed the saved choice on return to settings.
 
 ## Physical TCL acceptance before delivery
 
