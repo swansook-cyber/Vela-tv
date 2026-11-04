@@ -40,11 +40,36 @@ public final class LauncherSettingsActivity extends Activity {
     private boolean animations;
     private boolean advancedEffects;
 
+
+    private void refreshWidgetChoice(TextView view, String label, String key) {
+        view.setText(label + ": " + (choices.getBoolean(key, false) ? "ON" : "OFF"));
+    }
+
+    private void toggleWidgetChoice(String key) {
+        boolean enabled = choices.getBoolean(key, false);
+        choices.edit().putBoolean(key, !enabled).apply();
+        changed();
+    }
+
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.activity_launcher_settings);
         choices = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
+
+        final TextView weatherWidgetChoice = findViewById(R.id.weatherWidgetChoice);
+        final TextView prayerWidgetChoice = findViewById(R.id.prayerWidgetChoice);
+        refreshWidgetChoice(weatherWidgetChoice, "Weather widget", "v41_weather_widget");
+        refreshWidgetChoice(prayerWidgetChoice, "Prayer times widget", "v41_prayer_widget");
+        weatherWidgetChoice.setOnClickListener(v -> {
+            toggleWidgetChoice("v41_weather_widget");
+            refreshWidgetChoice(weatherWidgetChoice, "Weather widget", "v41_weather_widget");
+        });
+        prayerWidgetChoice.setOnClickListener(v -> {
+            toggleWidgetChoice("v41_prayer_widget");
+            refreshWidgetChoice(prayerWidgetChoice, "Prayer times widget", "v41_prayer_widget");
+        });
+
         Config config = Config.load(this);
         View reorderChoice = findViewById(R.id.reorderChoice);
         reorderChoice.setVisibility(config.launcherSettingsButton ? View.VISIBLE : View.GONE);
