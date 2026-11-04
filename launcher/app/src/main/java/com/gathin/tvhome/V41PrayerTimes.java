@@ -28,10 +28,12 @@ final class V41PrayerTimes {
 
     static void refresh(Activity activity, TextView card) {
         final String date = dateNow();
+        final V41Location location = V41Location.resolve(activity);
+        final String cacheKey = date + ":" + location.cacheKey();
         SharedPreferences cache = activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        String stored = cache.getString(date, null);
+        String stored = cache.getString(cacheKey, null);
         if (stored != null) {
-            String cached = render(stored, date, "Cached");
+            String cached = render(stored, date, "Cached", location.label);
             if (cached != null) card.setText(cached);
         }
         new Thread(() -> {
@@ -42,7 +44,8 @@ final class V41PrayerTimes {
                 String apiDate = parts[2] + "-" + parts[1] + "-" + parts[0];
                 // Fixed Krabi pilot coordinates until user-selectable location is implemented.
                 String endpoint = "https://api.aladhan.com/v1/timings/" + apiDate
-                        + "?latitude=8.08&longitude=98.81&school=0&timezonestring=Asia%2FBangkok";
+                        + "?latitude=" + location.latParam() + "&longitude=" + location.lonParam()
+                        + "&school=0&timezonestring=Asia%2FBangkok";
                 connection = (HttpURLConnection) new URL(endpoint).openConnection();
                 connection.setConnectTimeout(6000);
                 connection.setReadTimeout(6000);
@@ -68,15 +71,15 @@ final class V41PrayerTimes {
                     filtered.put(key, time.substring(0, 5));
                 }
                 String normalized = filtered.toString();
-                label = render(normalized, date, "Online");
+                label = render(normalized, date, "Online", location.label);
                 if (label == null) throw new IllegalStateException("Invalid schedule");
                 // Do not cache or display yesterday's results if the date changed mid-request.
                 if (!date.equals(dateNow())) return;
-                cache.edit().clear().putString(date, normalized).apply();
+                cache.edit().clear().putString(cacheKey, normalized).apply();
             } catch (Exception e) {
                 label = stored == null
-                        ? "PRAYER TIMES · Krabi\nUnavailable · connect to internet"
-                        : render(stored, date, "Cached · offline");
+                        ? "PRAYER TIMES · " + location.label + "\nUnavailable · connect to internet"
+                        : render(stored, date, "Cached · offline", location.label);
             } finally {
                 if (connection != null) connection.disconnect();
             }
@@ -88,10 +91,10 @@ final class V41PrayerTimes {
         }, "v41-prayer-times").start();
     }
 
-    private static String render(String raw, String date, String source) {
+    private static String render(String raw, String date, String source, String locationLabel) {
         try {
             JSONObject timings = new JSONObject(raw);
-            StringBuilder result = new StringBuilder("PRAYER TIMES · Krabi · " + date);
+            StringBuilder result = new StringBuilder("PRAYER TIMES · " + locationLabel + " · " + date);
             int currentMinute = minutesNow();
             String next = null;
             int remaining = 0;
