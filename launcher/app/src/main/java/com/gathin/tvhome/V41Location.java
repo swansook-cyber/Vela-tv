@@ -28,7 +28,7 @@ final class V41Location {
         if (settings.contains("v41_latitude") && settings.contains("v41_longitude")) {
             double lat = Double.longBitsToDouble(settings.getLong("v41_latitude", 0));
             double lon = Double.longBitsToDouble(settings.getLong("v41_longitude", 0));
-            if (valid(lat, lon)) return new V41Location(lat, lon, "Selected location");
+            if (valid(lat, lon)) return new V41Location(lat, lon, settings.getString("v41_location_label", "Selected location"));
         }
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
