@@ -369,6 +369,53 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     };
 
+
+    private void attachV41WidgetPreview() {
+        SharedPreferences prefs = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
+        boolean weather = prefs.getBoolean("v41_weather_widget", false);
+        boolean prayer = prefs.getBoolean("v41_prayer_widget", false);
+        if (!weather && !prayer) return;
+
+        LinearLayout cards = new LinearLayout(this);
+        cards.setOrientation(LinearLayout.VERTICAL);
+        cards.setFocusable(false);
+        cards.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        int margin = Math.round(24 * getResources().getDisplayMetrics().density);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                Math.round(250 * getResources().getDisplayMetrics().density),
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP | Gravity.RIGHT);
+        lp.setMargins(0, Math.round(165 * getResources().getDisplayMetrics().density), margin, 0);
+        if (weather) {
+            TextView card = v41StatusCard("WEATHER · Krabi\\nWaiting for weather data");
+            cards.addView(card);
+        }
+        if (prayer) {
+            TextView card = v41StatusCard("PRAYER TIMES · Krabi\\nWaiting for verified prayer times");
+            LinearLayout.LayoutParams item = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            item.topMargin = Math.round(8 * getResources().getDisplayMetrics().density);
+            cards.addView(card, item);
+        }
+        root.addView(cards, lp);
+    }
+
+    private TextView v41StatusCard(String label) {
+        TextView view = new TextView(this);
+        view.setText(label);
+        view.setTextColor(Color.WHITE);
+        view.setTextSize(13);
+        int pad = Math.round(14 * getResources().getDisplayMetrics().density);
+        view.setPadding(pad, pad, pad, pad);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xD9212933);
+        bg.setCornerRadius(Math.round(12 * getResources().getDisplayMetrics().density));
+        view.setBackground(bg);
+        view.setFocusable(false);
+        view.setClickable(false);
+        return view;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -409,6 +456,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         coocaaSources = cfg.coocaaSources;
 
         root = findViewById(R.id.root);
+
+        // V4.1 pilot: passive cards. No focus targets, network calls, or invented live readings.
+        // Both flags default to false so existing V4.0 Home remains visually unchanged.
+        attachV41WidgetPreview();
+
         root.setBackgroundColor(cfg.backgroundColor);
         // root fills the window with an opaque colour (Config keeps background_color opaque), so the window's own
         // black under it is a second full-screen fill on every frame for nothing. The starting window still uses
