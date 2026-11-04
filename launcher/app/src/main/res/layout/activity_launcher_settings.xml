@@ -138,6 +138,18 @@
             android:textSize="14sp" />
 
         <TextView
+            android:id="@+id/weatherWidgetChoice"
+            style="@style/SettingsRow"
+            android:layout_marginTop="24dp"
+            android:text="Weather widget: OFF" />
+
+        <TextView
+            android:id="@+id/prayerWidgetChoice"
+            style="@style/SettingsRow"
+            android:layout_marginTop="10dp"
+            android:text="Prayer times widget: OFF" />
+
+        <TextView
             android:id="@+id/defaultHomeChoice"
             style="@style/SettingsRow"
             android:layout_marginTop="28dp"
