@@ -397,6 +397,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             item.topMargin = Math.round(8 * getResources().getDisplayMetrics().density);
             cards.addView(card, item);
+            V41PrayerTimes.refresh(this, card);
         }
         root.addView(cards, lp);
     }
