@@ -1,0 +1,27 @@
+name: Vela TV V4.1 validation
+
+on:
+  push:
+    branches:
+      - feature/v4.1-weather-prayer-widgets
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Validate Java and Android resources (no APK publication)
+        working-directory: launcher
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:compileDebugJavaWithJavac :app:processDebugResources --no-daemon --stacktrace
