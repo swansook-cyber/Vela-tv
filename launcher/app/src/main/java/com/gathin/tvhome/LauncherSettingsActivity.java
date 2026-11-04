@@ -41,6 +41,17 @@ public final class LauncherSettingsActivity extends Activity {
     private boolean advancedEffects;
 
 
+    private void refreshWidgetLocation(TextView view) {
+        if (!choices.contains("v41_latitude")) {
+            view.setText("Widget location: Automatic / Krabi fallback");
+            return;
+        }
+        double latitude = Double.longBitsToDouble(choices.getLong("v41_latitude", 0));
+        String label = Math.abs(latitude - 13.7563) < 0.001 ? "Bangkok"
+                : Math.abs(latitude - 8.0863) < 0.001 ? "Krabi Town" : "Nong Thale, Krabi";
+        view.setText("Widget location: " + label);
+    }
+
     private void refreshWidgetChoice(TextView view, String label, String key) {
         view.setText(label + ": " + (choices.getBoolean(key, false) ? "ON" : "OFF"));
     }
@@ -69,6 +80,30 @@ public final class LauncherSettingsActivity extends Activity {
             toggleWidgetChoice("v41_prayer_widget");
             refreshWidgetChoice(prayerWidgetChoice, "Prayer times widget", "v41_prayer_widget");
         });
+
+        final TextView widgetLocationChoice = findViewById(R.id.widgetLocationChoice);
+        refreshWidgetLocation(widgetLocationChoice);
+        widgetLocationChoice.setOnClickListener(v -> new AlertDialog.Builder(this)
+                .setTitle("Widget location")
+                .setSingleChoiceItems(new String[]{"Automatic (TV) / Krabi fallback",
+                        "Nong Thale, Krabi", "Krabi Town", "Bangkok"}, -1,
+                        (dialog, selected) -> {
+                            if (selected == 0) {
+                                choices.edit().remove("v41_latitude").remove("v41_longitude").apply();
+                            } else {
+                                double[] lat = {0, 8.08, 8.0863, 13.7563};
+                                double[] lon = {0, 98.81, 98.9063, 100.5018};
+                                choices.edit()
+                                        .putLong("v41_latitude", Double.doubleToRawLongBits(lat[selected]))
+                                        .putLong("v41_longitude", Double.doubleToRawLongBits(lon[selected]))
+                                        .apply();
+                            }
+                            changed();
+                            refreshWidgetLocation(widgetLocationChoice);
+                            dialog.dismiss();
+                        })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show());
 
         Config config = Config.load(this);
         View reorderChoice = findViewById(R.id.reorderChoice);
