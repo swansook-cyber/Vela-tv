@@ -19,7 +19,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
+      # GitHub's Ubuntu runner includes Android SDK tooling; avoid setup-android's
+      # sdkmanager update step, which failed before Gradle could run.
+      - name: Verify preinstalled Android SDK
+        run: |
+          test -n "${ANDROID_HOME:-}"
+          test -d "$ANDROID_HOME/platforms/android-34"
+          test -d "$ANDROID_HOME/build-tools"
+          echo "Android SDK ready: $ANDROID_HOME"
       - name: Validate Java and Android resources (no APK publication)
         working-directory: launcher
         run: |
