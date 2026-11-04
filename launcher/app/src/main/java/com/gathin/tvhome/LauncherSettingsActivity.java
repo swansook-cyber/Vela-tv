@@ -89,13 +89,14 @@ public final class LauncherSettingsActivity extends Activity {
                         "Nong Thale, Krabi", "Krabi Town", "Bangkok"}, -1,
                         (dialog, selected) -> {
                             if (selected == 0) {
-                                choices.edit().remove("v41_latitude").remove("v41_longitude").apply();
+                                choices.edit().remove("v41_latitude").remove("v41_longitude").remove("v41_location_label").apply();
                             } else {
                                 double[] lat = {0, 8.08, 8.0863, 13.7563};
                                 double[] lon = {0, 98.81, 98.9063, 100.5018};
                                 choices.edit()
                                         .putLong("v41_latitude", Double.doubleToRawLongBits(lat[selected]))
                                         .putLong("v41_longitude", Double.doubleToRawLongBits(lon[selected]))
+                                        .putString("v41_location_label", new String[]{"", "Nong Thale, Krabi", "Krabi Town", "Bangkok"}[selected])
                                         .apply();
                             }
                             changed();
