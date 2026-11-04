@@ -46,10 +46,10 @@ final class V41Weather {
                     throw new IllegalStateException("Invalid temperature");
                 }
                 String observed = current.optString("time", "");
-                label = String.format(Locale.US, "WEATHER · Krabi\\n%.0f°C · %s\\nUpdated %s",
+                label = String.format(Locale.US, "WEATHER · Krabi\n%.0f°C · %s\nUpdated %s",
                         temperature, condition(current.optInt("weather_code", -1)), observed);
             } catch (Exception error) {
-                label = "WEATHER · Krabi\\nData unavailable · check connection";
+                label = "WEATHER · Krabi\nData unavailable · check connection";
             } finally {
                 if (connection != null) connection.disconnect();
             }
