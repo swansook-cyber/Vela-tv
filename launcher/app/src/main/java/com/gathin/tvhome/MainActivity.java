@@ -387,11 +387,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 Gravity.TOP | Gravity.RIGHT);
         lp.setMargins(0, Math.round(165 * getResources().getDisplayMetrics().density), margin, 0);
         if (weather) {
-            TextView card = v41StatusCard("WEATHER · Krabi\\nWaiting for weather data");
+            TextView card = v41StatusCard("WEATHER · Krabi\nWaiting for weather data");
             cards.addView(card);
+            V41Weather.refresh(this, card);
         }
         if (prayer) {
-            TextView card = v41StatusCard("PRAYER TIMES · Krabi\\nWaiting for verified prayer times");
+            TextView card = v41StatusCard("PRAYER TIMES · Krabi\nWaiting for verified prayer times");
             LinearLayout.LayoutParams item = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             item.topMargin = Math.round(8 * getResources().getDisplayMetrics().density);
