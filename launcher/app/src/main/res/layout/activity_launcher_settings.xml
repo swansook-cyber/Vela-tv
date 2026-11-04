@@ -150,6 +150,12 @@
             android:text="Prayer times widget: OFF" />
 
         <TextView
+            android:id="@+id/widgetLocationChoice"
+            style="@style/SettingsRow"
+            android:layout_marginTop="10dp"
+            android:text="Widget location: Automatic / Krabi" />
+
+        <TextView
             android:id="@+id/defaultHomeChoice"
             style="@style/SettingsRow"
             android:layout_marginTop="28dp"
