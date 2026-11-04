@@ -5,6 +5,12 @@ on:
     branches:
       - feature/v4.1-weather-prayer-widgets
   workflow_dispatch:
+    inputs:
+      build_signed_apk:
+        description: 'Build signed V4.1 internal QA APK (requires VELA_RELEASE_* secrets)'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -32,3 +38,61 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew :app:compileDebugJavaWithJavac :app:processDebugResources --no-daemon --stacktrace
+
+  signed-apk:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_signed_apk }}
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify Android SDK
+        run: |
+          test -d "$ANDROID_HOME/platforms/android-34"
+          test -d "$ANDROID_HOME/build-tools"
+      - name: Prepare permanent release keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.VELA_RELEASE_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.VELA_RELEASE_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.VELA_RELEASE_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.VELA_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -eu
+          test -n "$KEYSTORE_B64" || { echo "Missing VELA_RELEASE_KEYSTORE_BASE64"; exit 1; }
+          test -n "$STORE_PASSWORD" || { echo "Missing VELA_RELEASE_STORE_PASSWORD"; exit 1; }
+          test -n "$KEY_ALIAS" || { echo "Missing VELA_RELEASE_KEY_ALIAS"; exit 1; }
+          test -n "$KEY_PASSWORD" || { echo "Missing VELA_RELEASE_KEY_PASSWORD"; exit 1; }
+          test "$KEY_ALIAS" = "vela-store" || { echo "Unexpected signing alias"; exit 1; }
+          umask 077
+          echo "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/vela-release.jks"
+          test -s "$RUNNER_TEMP/vela-release.jks"
+          echo "VELA_RELEASE_KEYSTORE_FILE=$RUNNER_TEMP/vela-release.jks" >> "$GITHUB_ENV"
+          echo "VELA_RELEASE_STORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "VELA_RELEASE_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "VELA_RELEASE_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+      - name: Build release APK with permanent signing
+        working-directory: launcher
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon
+      - name: Verify signed APK and identity
+        run: |
+          APK="launcher/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          "$APKSIGNER" verify --verbose "$APK"
+          "$APKSIGNER" verify --print-certs "$APK" | grep 'Signer #1 certificate SHA-256 digest'
+          echo "APK_SHA256=$(sha256sum "$APK" | cut -d' ' -f1)" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vela-tv-v4.1.0-signed-internal-qa
+          path: launcher/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Remove keystore from runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/vela-release.jks"
