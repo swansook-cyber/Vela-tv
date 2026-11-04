@@ -14,17 +14,17 @@ import java.util.Locale;
 
 /** Small, best-effort weather fetcher; never performs network I/O on the UI thread. */
 final class V41Weather {
-    private static final String ENDPOINT =
-            "https://api.open-meteo.com/v1/forecast?latitude=8.08&longitude=98.81"
-            + "&current=temperature_2m,weather_code&timezone=Asia%2FBangkok";
     private V41Weather() {}
 
     static void refresh(Activity activity, TextView card) {
+        final V41Location location = V41Location.resolve(activity);
         new Thread(() -> {
             HttpURLConnection connection = null;
             String label;
             try {
-                connection = (HttpURLConnection) new URL(ENDPOINT).openConnection();
+                connection = (HttpURLConnection) new URL("https://api.open-meteo.com/v1/forecast?latitude=" + location.latParam()
+                        + "&longitude=" + location.lonParam()
+                        + "&current=temperature_2m,weather_code&timezone=Asia%2FBangkok").openConnection();
                 connection.setConnectTimeout(6000);
                 connection.setReadTimeout(6000);
                 connection.setRequestProperty("Accept", "application/json");
@@ -46,10 +46,10 @@ final class V41Weather {
                     throw new IllegalStateException("Invalid temperature");
                 }
                 String observed = current.optString("time", "");
-                label = String.format(Locale.US, "WEATHER · Krabi\n%.0f°C · %s\nUpdated %s",
-                        temperature, condition(current.optInt("weather_code", -1)), observed);
+                label = String.format(Locale.US, "WEATHER · %s\n%.0f°C · %s\nUpdated %s",
+                        location.label, temperature, condition(current.optInt("weather_code", -1)), observed);
             } catch (Exception error) {
-                label = "WEATHER · Krabi\nData unavailable · check connection";
+                label = "WEATHER · " + location.label + "\nData unavailable · check connection";
             } finally {
                 if (connection != null) connection.disconnect();
             }
