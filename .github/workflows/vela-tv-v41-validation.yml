@@ -89,7 +89,7 @@ jobs:
           "$APKSIGNER" verify --verbose "$APK"
           CERT_OUTPUT="$("$APKSIGNER" verify --print-certs "$APK")"
           echo "$CERT_OUTPUT"
-          CERT_SHA256="$(echo "$CERT_OUTPUT" | awk '/Signer #1 certificate SHA-256 digest:/ {print $NF; exit}')" 
+          CERT_SHA256="$(echo "$CERT_OUTPUT" | awk '/certificate SHA-256 digest:/ {print $NF; exit}')"
           test -n "$CERT_SHA256" || { echo "Cannot read signer certificate SHA-256"; exit 1; }
           echo "Signer certificate SHA-256: $CERT_SHA256" >> "$GITHUB_STEP_SUMMARY"
           echo "APK_SHA256=$(sha256sum "$APK" | cut -d' ' -f1)" >> "$GITHUB_STEP_SUMMARY"
