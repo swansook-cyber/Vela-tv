@@ -94,7 +94,7 @@ final class V41PrayerTimes {
     private static String render(String raw, String date, String source, String locationLabel) {
         try {
             JSONObject timings = new JSONObject(raw);
-            StringBuilder result = new StringBuilder("PRAYER TIMES · " + locationLabel + " · " + date);
+            StringBuilder result = new StringBuilder("PRAYER TIMES  ·  " + locationLabel);
             int currentMinute = minutesNow();
             String next = null;
             int remaining = 0;
@@ -104,15 +104,17 @@ final class V41PrayerTimes {
                 int minute = Integer.parseInt(time.substring(0, 2)) * 60
                         + Integer.parseInt(time.substring(3, 5));
                 if (minute >= 1440) return null;
-                result.append("\n").append(LABELS[i]).append("  ").append(time);
+                if (i == 0 || i == 3) result.append("\n");
+                else result.append("    ");
+                result.append(LABELS[i]).append(" ").append(time);
                 if (next == null && minute > currentMinute) {
                     next = LABELS[i];
                     remaining = minute - currentMinute;
                 }
             }
-            result.append("\n").append(next == null ? "All five times passed" :
-                    "Next: " + next + " in " + remaining / 60 + "h " + remaining % 60 + "m");
-            result.append(" · ").append(source);
+            result.append("\n").append(next == null ? "Today's prayers complete" :
+                    "NEXT  " + next + "  ·  " + remaining / 60 + "h " + remaining % 60 + "m");
+            result.append("  ·  ").append(source);
             return result.toString();
         } catch (Exception e) {
             return null;
