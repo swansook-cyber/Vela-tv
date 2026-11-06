@@ -376,42 +376,45 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean prayer = prefs.getBoolean("v41_prayer_widget", false);
         if (!weather && !prayer) return;
 
+        // Compact, non-focusable TV glance panel. Keep clear of the app dock.
+        float density = getResources().getDisplayMetrics().density;
+        int widthPx = getResources().getDisplayMetrics().widthPixels;
+        int cardWidth = Math.min(Math.round(420 * density), Math.round(widthPx * 0.42f));
         LinearLayout cards = new LinearLayout(this);
         cards.setOrientation(LinearLayout.VERTICAL);
         cards.setFocusable(false);
         cards.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        int margin = Math.round(24 * getResources().getDisplayMetrics().density);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                Math.round(250 * getResources().getDisplayMetrics().density),
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                Gravity.TOP | Gravity.RIGHT);
-        lp.setMargins(0, Math.round(165 * getResources().getDisplayMetrics().density), margin, 0);
+                cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT);
+        lp.setMargins(0, Math.round(116 * density), Math.round(24 * density), 0);
         if (weather) {
-            TextView card = v41StatusCard("WEATHER · Krabi\nWaiting for weather data");
+            TextView card = v41StatusCard("WEATHER · Krabi\\nLoading…", 20);
             cards.addView(card);
             V41Weather.refresh(this, card);
         }
         if (prayer) {
-            TextView card = v41StatusCard("PRAYER TIMES · Krabi\nWaiting for verified prayer times");
+            TextView card = v41StatusCard("PRAYER TIMES · Krabi\\nLoading…", 16);
             LinearLayout.LayoutParams item = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            item.topMargin = Math.round(8 * getResources().getDisplayMetrics().density);
+            item.topMargin = Math.round(10 * density);
             cards.addView(card, item);
             V41PrayerTimes.refresh(this, card);
         }
         root.addView(cards, lp);
     }
 
-    private TextView v41StatusCard(String label) {
+    private TextView v41StatusCard(String label, int sp) {
         TextView view = new TextView(this);
         view.setText(label);
         view.setTextColor(Color.WHITE);
-        view.setTextSize(13);
-        int pad = Math.round(14 * getResources().getDisplayMetrics().density);
+        view.setTextSize(sp);
+        view.setLineSpacing(Math.round(3 * getResources().getDisplayMetrics().density), 1f);
+        int pad = Math.round(18 * getResources().getDisplayMetrics().density);
         view.setPadding(pad, pad, pad, pad);
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xD9212933);
-        bg.setCornerRadius(Math.round(12 * getResources().getDisplayMetrics().density));
+        bg.setColor(0xE6213047);
+        bg.setStroke(Math.round(1 * getResources().getDisplayMetrics().density), 0x668FA9CF);
+        bg.setCornerRadius(Math.round(18 * getResources().getDisplayMetrics().density));
         view.setBackground(bg);
         view.setFocusable(false);
         view.setClickable(false);
