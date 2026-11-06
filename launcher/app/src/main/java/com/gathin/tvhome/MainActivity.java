@@ -391,7 +391,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 cardWidth, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.RIGHT);
         lp.setMargins(0, Math.round(116 * density), Math.round(24 * density), 0);
         if (weather) {
-            TextView card = v41StatusCard("WEATHER · Krabi\\nLoading…", 20);
+            TextView card = v41StatusCard("☀  WEATHER\\nLoading forecast…", 24);
             cards.addView(card);
             V41Weather.refresh(this, card);
         }
@@ -415,8 +415,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int pad = Math.round(18 * getResources().getDisplayMetrics().density);
         view.setPadding(pad, pad, pad, pad);
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xE6213047);
-        bg.setStroke(Math.round(1 * getResources().getDisplayMetrics().density), 0x668FA9CF);
+        bg.setColor(0xF0102D63);
+        bg.setStroke(Math.round(1 * getResources().getDisplayMetrics().density), 0x885BA3E8);
         bg.setCornerRadius(Math.round(18 * getResources().getDisplayMetrics().density));
         view.setBackground(bg);
         view.setFocusable(false);
