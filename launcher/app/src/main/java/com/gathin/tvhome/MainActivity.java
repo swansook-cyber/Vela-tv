@@ -371,6 +371,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
 
     private void attachV41WidgetPreview() {
+        // The multi-row app grid fills the screen: never overlay app tiles with widgets.
+        // Show the glance panel only in dock/single-row Home layouts.
+        if (!dockRow && !singleRow) return;
         SharedPreferences prefs = getSharedPreferences(Config.SETTINGS_NAME, MODE_PRIVATE);
         boolean weather = prefs.getBoolean("v41_weather_widget", false);
         boolean prayer = prefs.getBoolean("v41_prayer_widget", false);
